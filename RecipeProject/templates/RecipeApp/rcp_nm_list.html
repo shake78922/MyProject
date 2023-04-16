@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}레시피 리스트{% endblock %}
+
+{% block content %}
+<div class="btn-group">
+    <a href="" class="btn btn-info">레시피 추가하기</a>
+</div>
+<div class="btn-group float-right">
+    <a href={% url 'RecipeApp:table_list' %} class="btn btn-info">전체 레시피 보기</a>
+</div>
+<p></p>
+<table class="table mx-auto w-50">
+    <thead>
+        <tr>
+            <th class="w-25 text-center">#</th>
+            <th scope="col">레시피명</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rcp_nm_item in rcp_nm_list%}
+            <tr>
+                <td class="text-center">{{rcp_nm_item.rcp_nm_pk}}</td>
+                <td><a href="./detail/{{rcp_nm_item.rcp_nm_pk}}">{{rcp_nm_item.rcp_nm}}</a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+
+{% block pagination %}
+    {% if is_paginated %}
+        <ul class="pagination justify-content-center mb-4">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&larr;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">&larr;</a>
+                </li>
+            {% endif %}
+        
+            {% for index in pagelist %}
+                {% if index == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ index }}</span>
+                    </li>
+                {% else %}
+                    {% if index == page_obj.paginator.ELLIPSIS %}
+                        <li class="page-item">
+                            <span class="page-link">{{ page_obj.paginator.ELLIPSIS }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ index }}">{{ index }}</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&rarr;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">&rarr;</a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}레시피 상세정보{% endblock %}
+
+{% block content %}
+<div class="btn-group">
+    <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-info">목록으로</a>
+</div>
+<p></p>
+<table class="table mx-auto w-100">
+    <caption style="border: inherit; background-color: lightgrey;">
+        <span class="align-left"><strong>{{ rcp_detail.rcp_nm == pk }}</strong></span>
+    </caption>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">단계</th>
+            <th scope="col">재료</th>
+            <th scope="col">함량</th>
+            <th scope="col">단위</th>
+            <th scope="col">목측량</th>
+            {% if user.is_authenticated %}
+            <th scope="col">수정</th>
+            <th scope="col">삭제</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for rcp_item in object %}
+            <tr>
+                <td>{{rcp_item.rcp_pk}}</td>
+                <td>{{rcp_item.rcp_sub_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_qnt}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_unit}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_sub}}</td>
+                {% if user.is_authenticated %}
+                <td><a href="" class="btn btn-success btn-sm">수정</a></td>
+                <td><a href="" class="btn btn-danger btn-sm">삭제</a></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -4,7 +4,9 @@ from RecipeApp import views
 app_name = "RecipeApp"
 
 urlpatterns = [
-    path("",views.RcpTableListView.as_view(),name="table_list"),
-    # path('upload_images/', views.UploadImage.as_view(),name='upload_images_url'),
+    path("", views.main, name="mainpage"),
+    path("recipenamelist/", views.RcpNmListView.as_view(), name="rcp_nm_list"),
+    path("recipenamelist/detail/<int:pk>", views.RcpDetailView.as_view(), name="rcp_detail"),
+    path("tablelist/", views.RcpTableListView.as_view(), name="table_list"),
     
 ]

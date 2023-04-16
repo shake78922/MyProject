@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}전체 레시피 리스트{% endblock %}
+
+{% block content %}
+<div class="btn-group">
+    <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-info">목록으로</a>
+</div>
+<p></p>
+<table class="table mx-auto w-100">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">레시피명</th>
+            <th scope="col">단계</th>
+            <th scope="col">재료</th>
+            <th scope="col">함량</th>
+            <th scope="col">단위</th>
+            <th scope="col">목측량</th>
+            <!-- <th scope="col" width="70">수정</th> -->
+            <!-- <th scope="col" width="70">삭제</th> -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for rcp_item in table_list %}
+            <tr>
+                <td>{{rcp_item.rcp_pk}}</td>
+                <!-- <td><a href="./detail/{{rcp_item.rcp_pk}}">{{rcp_item.rcp_nm}}</a></td> -->
+                <td>{{rcp_item.rcp_nm}}</td>
+                <td>{{rcp_item.rcp_sub_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_qnt}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_unit}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_sub}}</td>
+                <!-- <td><a href="" class="btn btn-success btn-sm">수정</a></td> -->
+                <!-- <td><a href="" class="btn btn-danger btn-sm">삭제</a></td> -->
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+
+{% block pagination %}
+    {% if is_paginated %}
+        <ul class="pagination justify-content-center mb-4">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&larr;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">&larr;</a>
+                </li>
+            {% endif %}
+        
+            {% for index in pagelist %}
+                {% if index == page_obj.number %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ index }}</span>
+                    </li>
+                {% else %}
+                    {% if index == page_obj.paginator.ELLIPSIS %}
+                        <li class="page-item">
+                            <span class="page-link">{{ page_obj.paginator.ELLIPSIS }}</span>
+                        </li>
+                    {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ index }}">{{ index }}</a>
+                        </li>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&rarr;</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">&rarr;</a>
+                </li>
+            {% endif %}
+        </ul>
+    {% endif %}
+{% endblock %}
