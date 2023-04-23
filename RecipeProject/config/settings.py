@@ -130,4 +130,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Login Redirect
 
-LOGIN_REDIRECT_URL = '/tablelist'
+LOGIN_REDIRECT_URL = '/recipenamelist'

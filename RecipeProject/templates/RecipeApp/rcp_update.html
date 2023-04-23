@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}레시피 수정하기{% endblock %}
+
+{% block content %}
+<p></p>
+<form method="POST">
+    {% csrf_token %}
+    <table class="table mx-auto w-100">
+        <h2><input type="text" name="rcp_nm_{{ recipe_name.rcp_pk }}" value="{{ recipe_name.rcp_nm }}"></h2>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">단계</th>
+                    <th scope="col">재료</th>
+                    <th scope="col">함량</th>
+                    <th scope="col">단위</th>
+                    <th scope="col">목측량</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rcp_item in rcp_detail %}
+                    <tr>
+                        <td><input type="number" name="rcp_sub_num_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_sub_num }}"></td>
+                        <td><input type="text" name="rcp_sub_nm_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_sub_nm }}"></td>
+                        <td><input type="text" name="rcp_ingrdnt_nm_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_nm }}"></td>
+                        <td><input type="text" name="rcp_ingrdnt_qnt_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_qnt }}"></td>
+                        <td><input type="text" name="rcp_ingrdnt_unit_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_unit }}"></td>
+                        <td><input type="text" name="rcp_ingrdnt_sub_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_sub }}"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <p></p>
+    <div class="btn-group">
+        <input class="btn btn-primary" type="submit" value="수정 완료">
+    </div>
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:rcp_detail' recipe_name.rcp_num %} class="btn btn-danger">취소</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% block title %}레시피 추가하기{% endblock %}
+
+{% block content %}
+<p></p>
+<form method="POST">
+    {% csrf_token %}
+    <table class="table mx-auto w-100">
+        <h3>레시피 이름 : {{ form.rcp_nm }}</h3>
+        {% if form.rcp_nm.errors %}
+        <div class="alert alert-danger">
+            {{ form.rcp_nm.errors }}
+        </div>
+        {% endif %}
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">단계</th>
+                    <th scope="col">재료</th>
+                    <th scope="col">함량</th>
+                    <th scope="col">단위</th>
+                    <th scope="col">목측량</th>
+                </tr>
+            </thead>
+            <tbody id="ingredients">
+                    <td>{{ form.rcp_sub_num }}</td>
+                    <td>{{ form.rcp_sub_nm }}</td>
+                    <td>{{ form.rcp_ingrdnt_nm }}</td>
+                    <td>{{ form.rcp_ingrdnt_qnt}}</td>
+                    <td>{{ form.rcp_ingrdnt_unit }}</td>
+                    <td>{{ form.rcp_ingrdnt_sub }}</td>
+                </tr>
+            </tbody>
+        </table>
+    <p></p>
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary" id="add-ingredient">+ 재료 추가</button>
+    </div>
+    <p></p>
+    <div class="btn-group">
+      <input class="btn btn-secondary" type="submit" value="완료">
+    </div>
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-danger">취소</a>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $('#add-ingredient').click(function() {
+            var ingredient = $('#ingredients tr:last').clone();
+            ingredient.find('input').val('');
+            var lastSubNum = parseInt($('#ingredients tr:last td:first input').val());
+            ingredient.find('input[name^="rcp_sub_num"]').val(lastSubNum + 1);
+            $('#ingredients').append(ingredient);
+        });
+    });
+</script>
+{% endblock %}
+
+<!-- 
+    <p></p>
+<form id="form-container" method="POST">
+    {% csrf_token %}
+    <table class="table mx-auto w-100">
+        <h3>레시피 이름 : {{ rcp_nm_form.rcp_nm }}</h3>
+        {% if rcp_nm_form.errors %}
+        <div class="alert alert-danger">
+            {{ rcp_nm_form.errors }}
+        </div>
+        {% endif %}
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">단계</th>
+                    <th scope="col">재료</th>
+                    <th scope="col">함량</th>
+                    <th scope="col">단위</th>
+                    <th scope="col">목측량</th>
+                </tr>
+            </thead>
+            <tbody id="ingredients">
+                {{formset.management_form}}
+                {% for form in formset %}
+                    <tr>
+                        <td>{{ form.rcp_sub_num }}</td>
+                        <td>{{ form.rcp_sub_nm }}</td>
+                        <td>{{ form.rcp_ingrdnt_nm }}</td>
+                        <td>{{ form.rcp_ingrdnt_qnt}}</td>
+                        <td>{{ form.rcp_ingrdnt_unit }}</td>
+                        <td>{{ form.rcp_ingrdnt_sub }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <p></p>
+    <div class="btn-group">
+      <button type="button" class="btn btn-primary" id="add-ingredient">+ 재료 추가</button>
+    </div>
+    <p></p>
+    <div class="btn-group">
+      <input class="btn btn-secondary" type="submit" value="완료">
+    </div>
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-danger">취소</a>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function() {
+        $('#add-ingredient').click(function() {
+            var ingredient = $('#ingredients tr:last').clone();
+            ingredient.find('input').val('');
+            var lastSubNum = parseInt($('#ingredients tr:last td:first input').val());
+            ingredient.find('input[name^="rcp_sub_num"]').val(lastSubNum + 1);
+            $('#ingredients').append(ingredient);
+        });
+    });
+  </script>
+-->

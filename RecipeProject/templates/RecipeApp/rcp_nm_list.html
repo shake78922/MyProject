@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="btn-group">
-    <a href="" class="btn btn-info">레시피 추가하기</a>
+    <a href="./rcp_create/{{rcp_nm_item.rcp_num}}" class="btn btn-info">레시피 추가</a>
 </div>
 <div class="btn-group float-right">
     <a href={% url 'RecipeApp:table_list' %} class="btn btn-info">전체 레시피 보기</a>
@@ -14,13 +14,21 @@
         <tr>
             <th class="w-25 text-center">#</th>
             <th scope="col">레시피명</th>
+            {% if user.is_superuser %}
+            <th scope="col">수정</th>
+            <th scope="col">삭제</th>
+            {% endif %}
         </tr>
     </thead>
     <tbody>
         {% for rcp_nm_item in rcp_nm_list%}
             <tr>
-                <td class="text-center">{{rcp_nm_item.rcp_nm_pk}}</td>
-                <td><a href="./detail/{{rcp_nm_item.rcp_nm_pk}}">{{rcp_nm_item.rcp_nm}}</a></td>
+                <td class="text-center">{{rcp_nm_item.rcp_num}}</td>
+                <td><a href="./detail/{{rcp_nm_item.rcp_num}}">{{rcp_nm_item.rcp_nm}}</a></td>
+                {% if user.is_superuser %}
+                <td><a href="./update/{{rcp_nm_item.rcp_num}}" class="btn btn-success btn-sm">수정</a></td>
+                <td><a href="./delete/{{rcp_nm_item.rcp_num}}" class="btn btn-danger btn-sm">삭제</a></td>
+                {% endif %}
             </tr>
         {% endfor %}
     </tbody>

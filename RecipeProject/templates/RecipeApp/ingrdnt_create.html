@@ -1,10 +1,8 @@
 {% extends 'base.html' %}
-{% block title %}레시피 상세정보{% endblock %}
+{% block title %}재료 추가하기{% endblock %}
 
 {% block content %}
-<div class="btn-group">
-    <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-info">목록으로</a>
-</div>
+<form method="post" action="{% url 'RecipeApp:ingrdnt_create' pk=recipe_name.rcp_num %}">
 <p></p>
 <table class="table mx-auto w-100">
     <h2>{{ recipe_name.rcp_nm }}</h2>
@@ -29,15 +27,23 @@
                 <td>{{rcp_item.rcp_ingrdnt_sub}}</td>
             </tr>
         {% endfor %}
+        {% csrf_token %}
+            <tr>
+                <td>{{ form.rcp_sub_num }}</td>
+                <td>{{ form.rcp_sub_nm }}</td>
+                <td>{{ form.rcp_ingrdnt_nm }}</td>
+                <td>{{ form.rcp_ingrdnt_qnt }}</td>
+                <td>{{ form.rcp_ingrdnt_unit }}</td>
+                <td>{{ form.rcp_ingrdnt_sub }}</td>
+            </tr>
     </tbody>
 </table>
 <p></p>
-{% if user.is_superuser %}
     <div class="btn-group">
-        <a href={% url 'RecipeApp:rcp_update' pk %} class="btn btn-info">수정</a>
-    </div> &nbsp;
-    <div class="btn-group">
-        <a href={% url 'RecipeApp:ingrdnt_create' pk %} class="btn btn-info">재료 추가</a>
+        <input class="btn btn-primary" type="submit" value="추가">
     </div>
-{% endif %}
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:rcp_detail' recipe_name.rcp_num %} class="btn btn-danger">취소</a>
+    </div>
+</form>
 {% endblock %}
