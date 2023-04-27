@@ -2,7 +2,8 @@
 {% block title %}재료 추가하기{% endblock %}
 
 {% block content %}
-<form method="post" action="{% url 'RecipeApp:ingrdnt_create' pk=recipe_name.rcp_num %}">
+{% if user.is_superuser %}
+<form method="post" action="{% url 'RecipeApp:ingrdnt_create' rcp_num=recipe_name.rcp_num %}">
 <p></p>
 <table class="table mx-auto w-100">
     <h2>{{ recipe_name.rcp_nm }}</h2>
@@ -46,4 +47,7 @@
         <a href={% url 'RecipeApp:rcp_detail' recipe_name.rcp_num %} class="btn btn-danger">취소</a>
     </div>
 </form>
+{% else %}
+페이지를 볼 수 있는 권한이 없습니다. 로그인 해 주세요.
+{% endif %}
 {% endblock %}

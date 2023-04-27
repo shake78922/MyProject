@@ -8,6 +8,7 @@
 from django.db import models
 from django.urls import reverse
 from django.db.models import Max
+from django.utils.text import slugify
 
 class RcpTable(models.Model):
     rcp_pk = models.AutoField(db_column='RCP_PK', primary_key=True)  # Field name made lowercase.
@@ -20,12 +21,8 @@ class RcpTable(models.Model):
     rcp_ingrdnt_unit = models.CharField(db_column='RCP_INGRDNT_UNIT', max_length=50, blank=True, null=True)  # Field name made lowercase.
     rcp_ingrdnt_sub = models.CharField(db_column='RCP_INGRDNT_SUB', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
-    """    def __str__(self):
-        return "[" + self.rcp_nm + "] " + self.rcp_ingrdnt_nm"""
-
-    def get_absolute_url(self):
-        return reverse('RecipeApp:rcp_detail', args=[str(self.rcp_num)])
-
+    def __str__(self):
+        return "[" + self.rcp_nm + "] " + self.rcp_ingrdnt_nm
+        
     class Meta:
-        managed = False
         db_table = 'rcp_table'

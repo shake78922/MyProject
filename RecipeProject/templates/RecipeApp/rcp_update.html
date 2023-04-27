@@ -2,11 +2,12 @@
 {% block title %}레시피 수정하기{% endblock %}
 
 {% block content %}
+{% if user.is_superuser %}
 <p></p>
 <form method="POST">
     {% csrf_token %}
     <table class="table mx-auto w-100">
-        <h2><input type="text" name="rcp_nm_{{ recipe_name.rcp_pk }}" value="{{ recipe_name.rcp_nm }}"></h2>
+        <h2><input type="text" name="rcp_nm_{{ recipe_name.rcp_num }}" value="{{ recipe_name.rcp_nm }}"></h2>
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -38,4 +39,7 @@
         <a href={% url 'RecipeApp:rcp_detail' recipe_name.rcp_num %} class="btn btn-danger">취소</a>
     </div>
 </form>
+{% else %}
+페이지를 볼 수 있는 권한이 없습니다. 로그인 해 주세요.
+{% endif %}
 {% endblock %}

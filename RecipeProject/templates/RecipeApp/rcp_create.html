@@ -2,6 +2,7 @@
 {% block title %}레시피 추가하기{% endblock %}
 
 {% block content %}
+{% if user.is_superuser %}
 <p></p>
 <form method="POST">
     {% csrf_token %}
@@ -34,7 +35,8 @@
         </table>
     <p></p>
     <div class="btn-group">
-      <button type="button" class="btn btn-primary" id="add-ingredient">+ 재료 추가</button>
+      <!-- <button type="button" class="btn btn-primary" id="add-ingredient">+ 재료 추가</button> -->
+      <span class="btn btn-primary" id="add-ingredient">+ 재료 추가</span>
     </div>
     <p></p>
     <div class="btn-group">
@@ -44,8 +46,10 @@
         <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-danger">취소</a>
     </div>
 </form>
-
-<script>
+{% else %}
+페이지를 볼 수 있는 권한이 없습니다. 로그인 해 주세요.
+{% endif %}
+<!-- <script>
     $(document).ready(function() {
         $('#add-ingredient').click(function() {
             var ingredient = $('#ingredients tr:last').clone();
@@ -55,10 +59,11 @@
             $('#ingredients').append(ingredient);
         });
     });
-</script>
+</script> -->
 {% endblock %}
 
-<!-- 
+<!-- Dynamic 재료 줄 추가 기능 구현 시도...(실패) ==> Django Formset과 JavaScript에 대한 이해도 필요
+
     <p></p>
 <form id="form-container" method="POST">
     {% csrf_token %}

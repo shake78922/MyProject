@@ -12,7 +12,7 @@
 <table class="table mx-auto w-50">
     <thead>
         <tr>
-            <th class="w-25 text-center">#</th>
+            <th class="w-25 text-center">레시피 번호</th>
             <th scope="col">레시피명</th>
             {% if user.is_superuser %}
             <th scope="col">수정</th>
@@ -21,18 +21,61 @@
         </tr>
     </thead>
     <tbody>
-        {% for rcp_nm_item in rcp_nm_list%}
-            <tr>
-                <td class="text-center">{{rcp_nm_item.rcp_num}}</td>
-                <td><a href="./detail/{{rcp_nm_item.rcp_num}}">{{rcp_nm_item.rcp_nm}}</a></td>
-                {% if user.is_superuser %}
-                <td><a href="./update/{{rcp_nm_item.rcp_num}}" class="btn btn-success btn-sm">수정</a></td>
-                <td><a href="./delete/{{rcp_nm_item.rcp_num}}" class="btn btn-danger btn-sm">삭제</a></td>
-                {% endif %}
-            </tr>
-        {% endfor %}
+        {% if rcp_nm_list %}
+            {% for rcp_nm_item in rcp_nm_list %}
+                <tr>
+                    <td class="text-center">{{rcp_nm_item.rcp_num}}</td>
+                    <td><a href="./detail/{{rcp_nm_item.rcp_num}}">{{rcp_nm_item.rcp_nm}}</a></td>
+                    {% if user.is_superuser %}
+                    <td><a href="./update/{{rcp_nm_item.rcp_num}}" class="btn btn-success btn-sm">수정</a></td>
+                    <td><a href="./rcp_delete/{{rcp_nm_item.rcp_num}}" class="btn btn-danger btn-sm">삭제</a></td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        {% else %}
+        <!-- 추가된 코드 -->
+            {% if q %}
+                <tr class="text-center">
+                    {% if user.is_superuser %}
+                        <td colspan="4">
+                            일치하는 검색 결과가 없습니다.
+                    {% else %}
+                        <td colspan="2">
+                            일치하는 검색 결과가 없습니다.
+                    {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        {% endif %}
     </tbody>
 </table>
+<p></p>
+<div class="input-group justify-content-center">
+    <form action="" method="GET">
+        <div class="col">
+            <div class="form-row">
+                <div class="form-row">
+                    <div class="col">
+                        <select style="width: 6em;" class="custom-select custom-select-md" name="type">
+                            <option value="all">전체</option>
+                            <option value="rcp_num">레시피 번호</option>
+                            <option value="rcp_nm">레시피명</option>
+                            <option value="rcp_ingrdnt_nm">재료</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <input type="text" name="q" value="{{ q }}" class="form-control form-control-md"
+                            style="width: 15em;" placeholder="검색어를 입력해주세요.">
+                    </div>
+                    <div class="col">
+                        <button class="btn btn-primary" type="submit" id="search_btn">검색</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<p></p>
 {% endblock %}
 
 
@@ -41,7 +84,7 @@
         <ul class="pagination justify-content-center mb-4">
             {% if page_obj.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&larr;</a>
+                    <a class="page-link" href="?type={{ type }}&q={{ q }}&page={{ page_obj.previous_page_number }}">&larr;</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
@@ -61,7 +104,7 @@
                         </li>
                     {% else %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ index }}">{{ index }}</a>
+                            <a class="page-link" href="?type={{ type }}&q={{ q }}&page={{ index }}">{{ index }}</a>
                         </li>
                     {% endif %}
                 {% endif %}
@@ -69,7 +112,7 @@
         
             {% if page_obj.has_next %}
                 <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">&rarr;</a>
+                    <a class="page-link" href="?type={{ type }}&q={{ q }}&page={{ page_obj.next_page_number }}">&rarr;</a>
                 </li>
             {% else %}
                 <li class="page-item disabled">
