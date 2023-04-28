@@ -15,12 +15,12 @@ urlpatterns = [
     path("recipenamelist/rcp_delete/<int:rcp_num>", views.rcp_delete_view, name="rcp_delete"),
     
     # swagger
-    path("tablelist/", views.RcpTableList.as_view()),
-    path("recipenamelist/", views.RcpNmList.as_view()),
-    path("recipenamelist/detail/<int:rcp_num>", views.RcpDetail.as_view()),
-    path("recipenamelist/update/<int:rcp_num>", views.RcpUpdate.as_view()),
-    path("recipenamelist/ingrdnt_create/<int:rcp_num>", views.IngrdntCreate.as_view()),
-    path("recipenamelist/rcp_create/", views.RcpCreate.as_view()),
-    path("recipenamelist/ingrdnt_delete/<int:rcp_num>/<int:pk>", views.IngrdntDelete.as_view()),
-    path("recipenamelist/rcp_delete/<int:rcp_num>", views.RcpDelete.as_view()),
+    path("tablelist/", views.RcpTableListAPIView.as_view()),
+    path("recipenamelist/", views.RcpNmListAPIView.as_view()),
+    path("recipenamelist/detail/<int:rcp_num>", views.RcpDetailAPIView.as_view()),
+    path("recipenamelist/rcp_create/", views.RcpCreateAPIView.as_view()),
+    path("recipenamelist/ingrdnt_create/<int:rcp_num>", views.IngrdntCreateAPIView.as_view()),
+    path("recipenamelist/ingrdnt_delete/<int:rcp_num>/<int:pk>", views.IngrdntDeleteAPIView.as_view()),
+    path("recipenamelist/rcp_delete/<int:rcp_num>", views.RcpDeleteAPIView.as_view()),
+    path("recipenamelist/update/<int:rcp_num>", views.RcpUpdateAPIView.as_view()),
 ]

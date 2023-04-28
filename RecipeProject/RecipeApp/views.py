@@ -5,19 +5,22 @@ from .models import RcpTable
 from .forms import IngrdntCreateForm, RcpCreateForm
 from django.http import HttpResponseRedirect
 from django.contrib import messages
-from django.db.models import Max, Q
-from rest_framework import generics
+from django.db.models import Max, Min, Q
+from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import RcpTableSerializer
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 # 메인 페이지
 def main(request):
     return render(request,"RecipeApp/mainpage.html")
 
+
+""" Django CBV & FBV 뷰 """
 
 # 레시피명 리스트 뷰
 class RcpNmListView(ListView):
@@ -139,7 +142,7 @@ class RcpTableListView(ListView):
         
         # 고유키 기준 역순으로 정렬한 전체 테이블 쿼리셋
         queryset = super(RcpTableListView, self).get_queryset(*args, **kwargs)
-        queryset = queryset.order_by("-rcp_pk")
+        queryset = queryset.order_by("-rcp_num", "-rcp_sub_num")
         
         # 검색 기능
         if search_keyword:
@@ -286,7 +289,7 @@ class IngrdntCreateView(CreateView):
         if form.is_valid():
             #(URL 파라미터 값 = 레시피 번호) 클릭한 레시피의 마지막 재료
             rcp_num = self.kwargs['rcp_num']
-            last_ingrdnt = RcpTable.objects.filter(rcp_num=rcp_num).order_by('-rcp_pk').first()
+            last_ingrdnt = RcpTable.objects.all().order_by('rcp_pk').last()
             # 작성된 폼에서 PK와 HiddenInput field에 값을 넣어줌
             form.instance.rcp_pk = last_ingrdnt.rcp_pk + 1
             form.instance.rcp_num = rcp_num
@@ -295,15 +298,6 @@ class IngrdntCreateView(CreateView):
             form.instance = form.save(commit=False)
             form.instance.created_by = self.request.user
             form.instance.save()
-            
-            """ 중간에 위치한 레시피의 재료 추가 시 테이블 맨 마지막으로 추가가 되는 것을, 해당 레시피가 위치한 곳에 추가가 되도록 하는 코드. """
-            """ 다만, PK를 수정하는 것이기에 문제가 발생할 가능성이 있음. """
-            
-            # 재료가 테이블 중간에 생성되었을 경우 나머지 뒤에 있던 재료들의 PK를 +1씩 옮김
-            ingrdnts_to_shift = RcpTable.objects.filter(rcp_pk__gte=form.instance.rcp_pk).exclude(pk=form.instance.pk)
-            for ingrdnt in ingrdnts_to_shift:
-                ingrdnt.rcp_pk += 1
-                ingrdnt.save()
             return super().form_valid(form)
         
         # 폼이 유효하지 않을 경우
@@ -417,51 +411,181 @@ def rcp_delete_view(request, rcp_num):
 
     return render(request, 'RecipeApp/rcp_delete.html', context)
 
-    
 
-# swagger 뷰
-class RcpTableList(generics.ListAPIView):
+
+""" DRF API 뷰 """
+
+
+# swagger
+
+# 전체 테이블 리스트 API뷰
+class RcpTableListAPIView(generics.ListAPIView):
     queryset = RcpTable.objects.all()
     serializer_class = RcpTableSerializer
 
-class RcpNmList(generics.ListAPIView):
+
+# 레시피명 리스트 API 뷰
+class RcpNmListAPIView(generics.ListAPIView):
     queryset = RcpTable.objects.all()
     serializer_class = RcpTableSerializer
 
-class RcpCreate(generics.CreateAPIView):
-    queryset = RcpTable.objects.all()
-    serializer_class = RcpTableSerializer
 
-class IngrdntCreate(generics.CreateAPIView):
-    queryset = RcpTable.objects.all()
+# 레시피별 상세 API 뷰
+class RcpDetailAPIView(generics.RetrieveAPIView):
     serializer_class = RcpTableSerializer
-    lookup_field = 'rcp_num'
-
-class RcpDetail(generics.ListAPIView):
     queryset = RcpTable.objects.all()
-    serializer_class = RcpTableSerializer
-    lookup_field = 'rcp_num'
-
-class RcpUpdate(generics.UpdateAPIView):
-    queryset = RcpTable.objects.all()
-    serializer_class = RcpTableSerializer
     lookup_field = 'rcp_num'
     
-class IngrdntDelete(generics.DestroyAPIView):
-    queryset = RcpTable.objects.all()
+    
+# 레시피 생성 API 뷰
+class RcpCreateAPIView(generics.CreateAPIView):
+    # 속성
     serializer_class = RcpTableSerializer
-    lookup_field = 'rcp_num', 'pk'
+    queryset = RcpTable.objects.all()
 
-class RcpDelete(generics.ListAPIView):
-    queryset = RcpTable.objects.all()
+    # 폼 데이터 처리 메서드
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # 레시피 이름 중복 여부 확인
+        rcp_nm = serializer.validated_data['rcp_nm']
+        if RcpTable.objects.filter(rcp_nm=rcp_nm).exists():
+            return Response({'error': '이미 존재하는 레시피 이름입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 새로운 PK와 레시피 번호 부여 (마지막 번호 + 1)
+        last_rcp_pk = RcpTable.objects.aggregate(Max('rcp_pk'))['rcp_pk__max']
+        serializer.validated_data['rcp_pk'] = last_rcp_pk + 1
+        last_rcp_num = RcpTable.objects.aggregate(Max('rcp_num'))['rcp_num__max']
+        serializer.validated_data['rcp_num'] = last_rcp_num + 1
+
+        # 레시피 생성
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        
+
+# 재료 생성 API 뷰
+class IngrdntCreateAPIView(generics.CreateAPIView):
+    # 속성
     serializer_class = RcpTableSerializer
+    queryset = RcpTable.objects.all()
     lookup_field = 'rcp_num'
 
+    # 폼 데이터 처리 메서드
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        # 레시피 번호에 해당하는 레시피가 존재하는지 확인
+        rcp_num = serializer.validated_data['rcp_num']
+        if not RcpTable.objects.filter(rcp_num=rcp_num).exists():
+            return Response({'error': '존재하지 않는 레시피 번호입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 새로운 PK와 재료 번호 부여 (마지막 번호 + 1)
+        last_rcp_pk = RcpTable.objects.aggregate(Max('rcp_pk'))['rcp_pk__max']
+        serializer.validated_data['rcp_pk'] = last_rcp_pk + 1
+        last_rcp_sub_num = RcpTable.objects.filter(rcp_num=rcp_num).aggregate(Max('rcp_sub_num'))['rcp_sub_num__max']
+        if last_rcp_sub_num is None:
+            last_rcp_sub_num = 0
+        serializer.validated_data['rcp_sub_num'] = last_rcp_sub_num + 1
+
+        # 재료 생성
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    
+# 재료 삭제 API 뷰
+class IngrdntDeleteAPIView(generics.DestroyAPIView):
+    # 속성
+    serializer_class = RcpTableSerializer
+    queryset = RcpTable.objects.all()
+    lookup_field = 'rcp_num', 'rcp_pk'
+
+    # 처리 성공 응답 메서드
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        rcp_num = instance.rcp_num
+
+        # 재료 삭제
+        self.perform_destroy(instance)
+
+        # 삭제된 재료보다 밑에 있는 재료들의 재료 번호를 하나씩 위로 옮김
+        if RcpTable.objects.filter(rcp_num=rcp_num).exists():
+            ingrdnt_shift = RcpTable.objects.filter(rcp_num=rcp_num)
+            ingrdnt_shift = ingrdnt_shift.filter(rcp_sub_num__gt=instance.rcp_sub_num)
+            for ingrdnt in ingrdnt_shift:
+                ingrdnt.rcp_sub_num -= 1
+                ingrdnt.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+# 레시피 삭제 API 뷰
+class RcpDeleteAPIView(generics.DestroyAPIView):
+    # 속성
+    serializer_class = RcpTableSerializer
+    queryset = RcpTable.objects.all()
+    lookup_field = 'rcp_num'
+
+    # 처리 성공 응답 메서드
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        rcp_num = instance.rcp_num
+
+        # 레시피 삭제
+        self.perform_destroy(instance)
+
+        # 삭제된 레시피보다 높은 레시피들의 레시피 번호를 하나씩 아래로 옮김
+        if RcpTable.objects.filter(rcp_num__gt=rcp_num).exists():
+            rcp_shift = RcpTable.objects.filter(rcp_num__gt=rcp_num)
+            for ingrdnt in rcp_shift:
+                ingrdnt.rcp_num -= 1
+                ingrdnt.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+# 레시피 수정 API 뷰
+class RcpUpdateAPIView(generics.UpdateAPIView):
+    # 속성
+    serializer_class = RcpTableSerializer
+    queryset = RcpTable.objects.all()
+    lookup_field = 'rcp_num'
+
+    # 폼 데이터 처리 메서드
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        # 레시피 이름 중복 여부 확인
+        rcp_nm = serializer.validated_data['rcp_nm']
+        if RcpTable.objects.filter(rcp_nm=rcp_nm).exclude(rcp_pk=instance.rcp_pk).exists():
+            return Response({'error': '이미 존재하는 레시피 이름입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 레시피 수정
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
 
 
-# 클라스뷰 대신 함수뷰로 수정
-"""class RcpUpdateView(ListView):
+
+
+
+
+
+
+
+
+
+
+
+
+
+# UpdateView 클라스뷰 대신 함수뷰로 수정
+"""
+class RcpUpdateView(ListView):
     
     # 속성
     model = RcpTable
@@ -514,7 +638,7 @@ class RcpDelete(generics.ListAPIView):
         return HttpResponseRedirect(self.get_success_url())"""
 
 
-# 클라스뷰 대신 함수뷰로 수정      
+# DeleteView 클라스뷰 대신 함수뷰로 수정      
 """
 class RcpDeleteView(ListView):
     
@@ -547,3 +671,50 @@ class RcpDeleteView(ListView):
                 ingrdnt.rcp_num -= 1
                 ingrdnt.save()
         return HttpResponseRedirect(self.success_url)"""
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+"""class RcpTableList(generics.ListAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+
+class RcpNmList(generics.ListAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+
+class RcpCreate(generics.CreateAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+
+class IngrdntCreate(generics.CreateAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+    lookup_field = 'rcp_num'
+
+class RcpDetail(generics.ListAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+    lookup_field = 'rcp_num'
+
+class RcpUpdate(generics.UpdateAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+    lookup_field = 'rcp_num'
+    
+class IngrdntDelete(generics.DestroyAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+    lookup_field = 'rcp_num', 'pk'
+
+class RcpDelete(generics.ListAPIView):
+    queryset = RcpTable.objects.all()
+    serializer_class = RcpTableSerializer
+    lookup_field = 'rcp_num'"""
