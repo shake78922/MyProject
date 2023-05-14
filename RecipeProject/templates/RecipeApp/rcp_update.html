@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}레시피 수정하기{% endblock %}
+
+{% block content %}
+{% if user.is_superuser %}
+<p></p>
+<form name = "rcp-update-form" onsubmit="return validateForm()" method="POST">
+    {% csrf_token %}
+    <table class="table mx-auto w-100">
+        <h2><input type="text" class="rcpName" name="rcp_nm_{{ recipe_name.rcp_num }}" value="{{ recipe_name.rcp_nm }}"></h2>
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">단계</th>
+                    <th scope="col">재료</th>
+                    <th scope="col">함량</th>
+                    <th scope="col">단위</th>
+                    <th scope="col">목측량</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rcp_item in rcp_detail %}
+                    <tr>
+                        <td><input type="number" class="rcpSubNum" name="rcp_sub_num_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_sub_num }}"></td>
+                        <td><input type="text" class="rcpSubName" name="rcp_sub_nm_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_sub_nm }}"></td>
+                        <td><input type="text" class="rcpIngrdntName" name="rcp_ingrdnt_nm_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_nm }}"></td>
+                        <td><input type="text" name="rcp_ingrdnt_qnt_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_qnt }}"></td>
+                        <td><input type="text" name="rcp_ingrdnt_unit_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_unit }}"></td>
+                        <td><input type="text" name="rcp_ingrdnt_sub_{{ rcp_item.rcp_pk }}" value="{{ rcp_item.rcp_ingrdnt_sub }}"></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    <p></p>
+    <div class="btn-group">
+        <input class="btn btn-primary" type="submit" value="수정 완료">
+    </div>
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:rcp_detail' recipe_name.rcp_num %} class="btn btn-danger">취소</a>
+    </div>
+</form>
+{% else %}
+<div class="alert alert-danger">
+    페이지를 볼 수 있는 권한이 없습니다. 로그인 해 주세요.
+</div>
+{% endif %}
+<script>
+
+    // 폼 공백 시 경고 팝업창 자바스크립트
+    function validateForm() {
+        var rcpNameInput = document.querySelector('.rcpName');
+        var rcpName = rcpNameInput.value;
+        var initialValue1 = rcpNameInput.getAttribute('value');
+        if (rcpName == "" || rcpName == null) {
+            if (rcpName == initialValue1) {
+                // do nothing
+            }
+            else {
+                alert("레시피 이름을 입력하세요.");
+                return false;
+            }
+        }
+
+
+        var inputs1 = document.getElementsByClassName('rcpSubNum');
+        for (var i = 0; i < inputs1.length; i++) {
+            var rcpSubNum = inputs1[i].value;
+            var initialValue2 = inputs1[i].getAttribute('value');
+            if (rcpSubNum == "" || rcpSubNum == null) {
+                if(rcpSubNum == initialValue2) {
+                    // do nothing
+                }
+                else {
+                    alert("레시피 번호(#)를 입력하세요.");
+                    return false;
+                }
+            }
+        }
+
+        var inputs2 = document.getElementsByClassName('rcpSubName');
+        for (var i = 0; i < inputs2.length; i++) {
+            var rcpSubName = inputs2[i].value;
+            var initialValue3 = inputs2[i].getAttribute('value');
+            if (rcpSubName == "" || rcpSubName == null) {
+                if (rcpSubName == initialValue3) {
+                    // do nothing
+                }
+                else {
+                    alert("단계명을 입력하세요.");
+                    return false;
+                }
+            }
+        }
+
+        var inputs3 = document.getElementsByClassName('rcpIngrdntName');
+        for (var i = 0; i < inputs3.length; i++) {
+            var rcpIngrdntName = inputs3[i].value;
+            var initialValue4 = inputs3[i].getAttribute('value');
+            if (rcpIngrdntName == "" || rcpIngrdntName == null) {
+                if (rcpIngrdntName == initialValue4) {
+                    // do nothing
+                }
+                else {
+                    alert("재료명을 입력하세요.");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+</script>
+{% endblock %}

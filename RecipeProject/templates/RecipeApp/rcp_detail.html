@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}레시피 상세정보{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+<div class="btn-group">
+    <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-info">목록으로</a>
+</div>
+<p></p>
+<table class="table mx-auto w-100">
+    <h2>{{ recipe_name.rcp_nm }}</h2>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">단계</th>
+            <th scope="col">재료</th>
+            <th scope="col">함량</th>
+            <th scope="col">단위</th>
+            <th scope="col">목측량</th>
+            {% if user.is_superuser %}
+            <th scope="col">삭제</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for rcp_item in rcp_detail %}
+            <tr>
+                <td>{{rcp_item.rcp_sub_num }}</td>
+                <td>{{rcp_item.rcp_sub_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_qnt}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_unit}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_sub}}</td>
+                {% if user.is_superuser %}
+                <td>
+                    <div class="btn-group">
+                        <a href={% url 'RecipeApp:ingrdnt_delete' rcp_item.rcp_num rcp_item.rcp_pk %} class="btn btn-danger">삭제</a>
+                    </div>
+                </td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p></p>
+{% if user.is_superuser %}
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:rcp_update' rcp_num %} class="btn btn-success">수정</a>
+    </div> &nbsp;
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:ingrdnt_create' rcp_num %} class="btn btn-primary">재료 추가</a>
+    </div>
+{% endif %}
+{% else %}
+<div class="alert alert-danger">
+    페이지를 볼 수 있는 권한이 없습니다. 로그인 해 주세요.
+</div>
+{% endif %}
+{% endblock %}

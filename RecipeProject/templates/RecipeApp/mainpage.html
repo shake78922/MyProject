@@ -1,0 +1,22 @@
+
+{% extends "base.html" %}
+{% block title %}Django Recipes{% endblock %}
+
+{% block content %}
+	<div class="container">
+        <div class="jumbotron">
+            <div class="container">
+                <h1>Django Recipes</h1>
+                <p class="lead">개인 프로젝트</p>
+                {% if not user.is_authenticated %}
+                    <p>
+                        <a class="btn btn-lg btn-primary" href="{% url 'accounts:login' %}">로그인</a> &nbsp;
+                        <a class="btn btn-lg btn-success" href="{% url 'accounts:register' %}">회원가입</a> &nbsp;
+                    </p>
+                {% else %}
+                <p><a class="btn btn-lg btn-primary" href="{% url 'RecipeApp:rcp_nm_list' %}">시작하기</a> &nbsp;
+                {% endif %}
+		    </div>
+	    </div>
+    </div>
+{% endblock content %}

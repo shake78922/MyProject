@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}로그아웃{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8 panel panel-default">
+        <div class="alert alert-info">성공적으로 로그아웃되었습니다.</div>
+        <a class="btn btn-primary" href="{% url 'accounts:login' %}">다시 로그인하기</a>
+        <a class="btn btn-info" href={% url 'RecipeApp:mainpage' %}>메인으로</a>
+    </div>
+    <div class="col-md-2"></div>
+</div>
+{% endblock %}

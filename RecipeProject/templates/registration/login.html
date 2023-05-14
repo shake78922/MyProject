@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}로그인{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 row justify-content-center"></div>
+    <div class="col-md-5 panel panel-default">
+        <div class="alert alert-info">로그인 정보를 입력하세요.</div>
+        <form action="" method="post">
+            {{form.as_p}}
+            {% csrf_token %}
+            <input class="btn btn-primary" type="submit" value="로그인">
+            <a href={% url 'RecipeApp:mainpage' %} class="btn btn-danger">취소</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

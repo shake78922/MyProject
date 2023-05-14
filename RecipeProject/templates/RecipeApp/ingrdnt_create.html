@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}재료 추가하기{% endblock %}
+
+{% block content %}
+{% if user.is_superuser %}
+<form name = "ingrdnt-create-form" onsubmit="return validateForm()" method="post" action="{% url 'RecipeApp:ingrdnt_create' rcp_num=recipe_name.rcp_num %}">
+<p></p>
+<table class="table mx-auto w-100">
+    <h2>{{ recipe_name.rcp_nm }}</h2>
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">단계</th>
+            <th scope="col">재료</th>
+            <th scope="col">함량</th>
+            <th scope="col">단위</th>
+            <th scope="col">목측량</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for rcp_item in rcp_detail %}
+            <tr>
+                <td>{{rcp_item.rcp_sub_num }}</td>
+                <td>{{rcp_item.rcp_sub_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_nm}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_qnt}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_unit}}</td>
+                <td>{{rcp_item.rcp_ingrdnt_sub}}</td>
+            </tr>
+        {% endfor %}
+        {% csrf_token %}
+            <tr>
+                <td>{{ form.rcp_sub_num }}</td>
+                <td>{{ form.rcp_sub_nm }}</td>
+                <td>{{ form.rcp_ingrdnt_nm }}</td>
+                <td>{{ form.rcp_ingrdnt_qnt }}</td>
+                <td>{{ form.rcp_ingrdnt_unit }}</td>
+                <td>{{ form.rcp_ingrdnt_sub }}</td>
+            </tr>
+    </tbody>
+</table>
+<p></p>
+    <div class="btn-group">
+        <input class="btn btn-primary" type="submit" value="추가">
+    </div>
+    <div class="btn-group">
+        <a href={% url 'RecipeApp:rcp_detail' recipe_name.rcp_num %} class="btn btn-danger">취소</a>
+    </div>
+</form>
+{% else %}
+<div class="alert alert-danger">
+    페이지를 볼 수 있는 권한이 없습니다. 로그인 해 주세요.
+</div>
+{% endif %}
+<script>
+
+    // 폼 공백 시 경고 팝업창 자바스크립트
+    function validateForm() {
+
+        var rcpSubNumInput = document.forms["ingrdnt-create-form"]["rcp_sub_num"];
+        var rcpSubNum = rcpSubNumInput.value;
+        var initialValue1 = rcpSubNumInput.getAttribute('value');
+        if (rcpSubNum == "" || rcpSubNum == null) {
+            if (rcpSubNum == initialValue1) {
+                // do nothing
+            }
+            else {
+                alert("레시피 번호(#)를 입력하세요.");
+                return false;
+            }
+        }
+
+        var rcpSubName = document.forms["ingrdnt-create-form"]["rcp_sub_nm"].value;
+        if (rcpSubName == "" || rcpSubName == null) {
+            alert("단계명을 입력하세요.");
+            return false;
+        }
+
+        var rcp_ingrdnt_nm = document.forms["ingrdnt-create-form"]["rcp_ingrdnt_nm"].value;
+        if (rcp_ingrdnt_nm == "" || rcp_ingrdnt_nm == null) {
+            alert("재료명을 입력하세요.");
+            return false;
+        }
+
+        return true;
+    }
+
+</script>
+{% endblock %}
