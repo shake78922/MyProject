@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.db.models import Max
 from django.utils.text import slugify
 
-class RcpTable(models.Model):
+class RcpTable(models.Model): # Recipe , Ingredient, field에서 rcp_ , num , nm 변수이름 변경
     rcp_pk = models.AutoField(db_column='RCP_PK', primary_key=True)  # Field name made lowercase.
     rcp_num = models.IntegerField(db_column='RCP_NUM', blank=True, null=True)  # Field name made lowercase.
     rcp_nm = models.CharField(db_column='RCP_NM', max_length=100, blank=True, null=True)  # Field name made lowercase.

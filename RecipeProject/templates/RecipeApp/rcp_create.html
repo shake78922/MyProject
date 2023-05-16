@@ -36,13 +36,12 @@
                 {% for form in formset %}
                 <div class="formset-form">
                     <tr>
-                        <td id="rcp-sub-num" class="required">{{ form.rcp_sub_num }}</td>
-                        <td id="rcp-sub-nm" class="required">{{ form.rcp_sub_nm }}</td>
-                        <td id="rcp-ingrdnt-nm" class="required">{{ form.rcp_ingrdnt_nm }}</td>
+                        <td id="rcp-sub-num">{{ form.rcp_sub_num }}</td>
+                        <td id="rcp-sub-nm">{{ form.rcp_sub_nm }}</td>
+                        <td id="rcp-ingrdnt-nm">{{ form.rcp_ingrdnt_nm }}</td>
                         <td>{{ form.rcp_ingrdnt_qnt}}</td>
                         <td>{{ form.rcp_ingrdnt_unit }}</td>
                         <td>{{ form.rcp_ingrdnt_sub }}</td>
-                        
                     </tr>
                 </div>
                 {% endfor %}

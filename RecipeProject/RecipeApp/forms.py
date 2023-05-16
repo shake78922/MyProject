@@ -1,6 +1,6 @@
 from django import forms
 from .models import RcpTable
-from django.forms import formset_factory, modelformset_factory
+from django.forms import modelformset_factory
 
 class IngrdntCreateForm(forms.ModelForm):
     class Meta:
@@ -20,28 +20,10 @@ class IngrdntCreateForm(forms.ModelForm):
             'rcp_num': forms.HiddenInput(),
             'rcp_nm': forms.HiddenInput(),
         }
-
-class RcpCreateForm(forms.ModelForm):
-    class Meta:
-        model = RcpTable
-        fields = [
-            'rcp_pk',
-            'rcp_num',
-            'rcp_nm',
-            'rcp_sub_num',
-            'rcp_sub_nm',
-            'rcp_ingrdnt_nm',
-            'rcp_ingrdnt_qnt',
-            'rcp_ingrdnt_unit',
-            'rcp_ingrdnt_sub',
-        ]
         
-        widgets = {
-            'rcp_pk': forms.HiddenInput(),
-            'rcp_num': forms.HiddenInput(),
-        }
 
 class RcpFormsetForm(forms.ModelForm):
+    error_css_class = "required"
     class Meta:
         model = RcpTable
         fields = [
@@ -61,6 +43,7 @@ class RcpFormsetForm(forms.ModelForm):
             'rcp_num': forms.HiddenInput(),
             'rcp_nm': forms.HiddenInput(),
         }
+        
         
 RcpFormSet = modelformset_factory(RcpTable, form=RcpFormsetForm)
 
