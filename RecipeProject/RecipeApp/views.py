@@ -11,10 +11,21 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 
-from .models import RcpTable
+from .models import Recipe, Ingredient
 from .forms import IngrdntCreateForm, RcpFormsetForm, RcpFormSet
 from .serializers import RcpTableSerializer
 
+
+def search_ingredients(searchword):
+    """ 검색 키워드에 맞는 재료명들의 레시피명을 쿼리셋으로 반환해주는 메서드"""
+    rcp_qs = Recipe.objects.all()
+    container_qs = Recipe.objects.none()
+    for obj1 in rcp_qs:
+        tmp_qs1 = obj1.ingredient.filter(Q(name__icontains=searchword))
+        for obj2 in tmp_qs1:
+            tmp_qs2 = Recipe.objects.filter(id=obj2.rcp.id)
+            container_qs = container_qs | tmp_qs2
+    return container_qs
 
 # 메인 페이지
 def main(request):
@@ -24,16 +35,16 @@ def main(request):
 """ Django CBV & FBV 뷰 """
 
 # 레시피명 리스트 뷰
-class RcpNmListView(ListView):
+class RecipeListView(ListView):
     # 속성
-    model = RcpTable
-    template_name = 'RecipeApp/rcp_nm_list.html'
-    context_object_name = 'rcp_nm_list'
+    model = Recipe
+    template_name = 'RecipeApp/recipe_list.html'
+    context_object_name = 'recipe_list'
     paginate_by = 10
     
     # context 데이터 호출 메서드
     def get_context_data(self, **kwargs):
-        context = super(RcpNmListView, self).get_context_data(**kwargs)
+        context = super(RecipeListView, self).get_context_data(**kwargs)
         
         # 페이징 정보 context
         page = context['page_obj']
@@ -57,8 +68,8 @@ class RcpNmListView(ListView):
         search_type = self.request.GET.get('type', '')
         
         # 레시피 번호 기준으로 역순 정렬 후 중복값을 제외한 전체 테이블 쿼리셋
-        queryset = super(RcpNmListView, self).get_queryset(*args, **kwargs)
-        queryset = queryset.order_by("-rcp_num").distinct('rcp_num')
+        queryset = super(RecipeListView, self).get_queryset(*args, **kwargs)
+        queryset = queryset1.order_by("-id") # .distinct('rcp_num')
         
         # 검색 기능
         if search_keyword:
@@ -68,37 +79,39 @@ class RcpNmListView(ListView):
                 if search_keyword.isdigit():
                     # 전체 검색
                     if search_type == 'all':
-                        search_list = queryset.filter(
-                            Q(rcp_num__exact=search_keyword) |
-                            Q(rcp_nm__icontains=search_keyword) |
-                            Q(rcp_ingrdnt_nm__icontains=search_keyword))
+                        queryset1 = queryset.filter(
+                            Q(id__exact=search_keyword) |
+                            Q(name__icontains=search_keyword))
+                        queryset2 = search_ingredients(search_keyword)
+                        search_list = queryset1 | queryset2
+
                     # 레시피 번호 검색
-                    elif search_type == 'rcp_num':
-                        search_list = queryset.filter(rcp_num__exact=search_keyword)
+                    elif search_type == 'rcp_id':
+                        search_list = queryset.filter(id__exact=search_keyword)
                     # 레시피 이름 검색
-                    elif search_type == 'rcp_nm':
-                        search_list = queryset.filter(rcp_nm__icontains=search_keyword)
+                    elif search_type == 'rcp_name':
+                        search_list = queryset.filter(name__icontains=search_keyword)
                     # 재료 이름 검색
-                    elif search_type == 'rcp_ingrdnt_nm':
-                        search_list = queryset.filter(rcp_ingrdnt_nm__icontains=search_keyword)
+                    elif search_type == 'ingredient_name':
+                        search_list = search_ingredients(search_keyword)
                     return search_list
                 
                 # 검색 키워드가 숫자가 아닐 경우
                 else:
                     # 전체 검색
                     if search_type == 'all':
-                        search_list = queryset.filter(
-                            Q(rcp_nm__icontains=search_keyword) |
-                            Q(rcp_ingrdnt_nm__icontains=search_keyword))
+                        queryset1 = queryset.filter(Q(name__icontains=search_keyword))
+                        queryset2 = search_ingredients(search_keyword)
+                        search_list = queryset1 | queryset2
                     # 레시피 번호 검색
-                    elif search_type == 'rcp_num':
+                    elif search_type == 'rcp_id':
                         search_list = queryset.filter(rcp_num__icontains=search_keyword)
                     # 레시피 이름 검색
-                    elif search_type == 'rcp_nm':
+                    elif search_type == 'rcp_name':
                         search_list = queryset.filter(rcp_nm__icontains=search_keyword)
                     # 재료 이름 검색
-                    elif search_type == 'rcp_ingrdnt_nm':
-                        search_list = queryset.filter(rcp_ingrdnt_nm__icontains=search_keyword)
+                    elif search_type == 'ingredient_name':
+                        search_list = search_ingredients(search_keyword)
                     return search_list
 
             # 검색 키워드 2글자 이하

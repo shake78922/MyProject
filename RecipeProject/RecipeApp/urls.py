@@ -5,8 +5,8 @@ app_name = "RecipeApp"
 
 urlpatterns = [
     path("", views.main, name="mainpage"),
-    path("tablelist/", views.RcpTableListView.as_view(), name="table_list"),
-    path("recipenamelist/", views.RcpNmListView.as_view(), name="rcp_nm_list"),
+    path("ingredientlist/", views.IngredientsListView.as_view(), name="ingredient_list"),
+    path("recipenamelist/", views.RecipeListView.as_view(), name="recipe_list"),
     path("recipenamelist/detail/<int:rcp_num>", views.RcpDetailView.as_view(), name="rcp_detail"),
     path("recipenamelist/update/<int:rcp_num>", views.rcp_update_view, name="rcp_update"),
     path("recipenamelist/ingrdnt_create/<int:rcp_num>", views.IngrdntCreateView.as_view(), name="ingrdnt_create"),
