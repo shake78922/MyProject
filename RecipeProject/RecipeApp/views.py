@@ -16,7 +16,7 @@ from .forms import IngrdntCreateForm, RcpFormsetForm, RcpFormSet
 from .serializers import RcpTableSerializer
 
 
-def search_ingredients(searchword):
+def search_recipe_from_ingredient(searchword):
     """ 검색 키워드에 맞는 재료명들의 레시피명을 쿼리셋으로 반환해주는 메서드"""
     rcp_qs = Recipe.objects.all()
     container_qs = Recipe.objects.none()
@@ -82,7 +82,7 @@ class RecipeListView(ListView):
                         queryset1 = queryset.filter(
                             Q(id__exact=search_keyword) |
                             Q(name__icontains=search_keyword))
-                        queryset2 = search_ingredients(search_keyword)
+                        queryset2 = search_recipe_from_ingredient(search_keyword)
                         search_list = queryset1 | queryset2
 
                     # 레시피 번호 검색
@@ -93,7 +93,7 @@ class RecipeListView(ListView):
                         search_list = queryset.filter(name__icontains=search_keyword)
                     # 재료 이름 검색
                     elif search_type == 'ingredient_name':
-                        search_list = search_ingredients(search_keyword)
+                        search_list = search_recipe_from_ingredient(search_keyword)
                     return search_list
                 
                 # 검색 키워드가 숫자가 아닐 경우
@@ -101,7 +101,7 @@ class RecipeListView(ListView):
                     # 전체 검색
                     if search_type == 'all':
                         queryset1 = queryset.filter(Q(name__icontains=search_keyword))
-                        queryset2 = search_ingredients(search_keyword)
+                        queryset2 = search_recipe_from_ingredient(search_keyword)
                         search_list = queryset1 | queryset2
                     # 레시피 번호 검색
                     elif search_type == 'rcp_id':
@@ -111,7 +111,7 @@ class RecipeListView(ListView):
                         search_list = queryset.filter(rcp_nm__icontains=search_keyword)
                     # 재료 이름 검색
                     elif search_type == 'ingredient_name':
-                        search_list = search_ingredients(search_keyword)
+                        search_list = search_recipe_from_ingredient(search_keyword)
                     return search_list
 
             # 검색 키워드 2글자 이하
@@ -121,9 +121,9 @@ class RecipeListView(ListView):
 
 
 # 전체 테이블 리스트 뷰
-class RcpTableListView(ListView):
+class IngredientsListView(ListView):
     # 속성
-    model = RcpTable
+    model = Ingredient
     context_object_name = 'table_list'
     paginate_by = 10
     
