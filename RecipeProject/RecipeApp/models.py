@@ -10,7 +10,7 @@ from django.db import models
 class Ingredient(models.Model):
     name = models.CharField(max_length=100, blank=True, null=True)
     type = models.CharField(max_length=100, blank=True, null=True)
-    quantity = models.CharField(max_length=50, blank=True, null=True)
+    qnt = models.CharField(max_length=50, blank=True, null=True)
     unit = models.CharField(max_length=50, blank=True, null=True)
     msmt = models.CharField(max_length=50, blank=True, null=True)
     rcp = models.ForeignKey('Recipe', models.CASCADE, related_name = 'ingredient')

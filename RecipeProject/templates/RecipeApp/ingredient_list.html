@@ -1,14 +1,63 @@
 {% extends 'base.html' %}
-{% block title %}레시피 리스트{% endblock %}
+{% block title %}전체 레시피 리스트{% endblock %}
 
 {% block content %}
 {% if user.is_authenticated %}
 <div class="btn-group">
-    <a href="./rcp_create/{{rcp_nm_item.rcp_num}}" class="btn btn-info">레시피 추가</a>
+    <a href={% url 'RecipeApp:recipe_list' %} class="btn btn-info">목록으로</a>
 </div>
-<div class="btn-group float-right">
-    <a href={% url 'RecipeApp:table_list' %} class="btn btn-info">전체 레시피 보기</a>
-</div>
+<p></p>
+<table class="table mx-auto w-100">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">레시피 번호</th>
+            <th scope="col">레시피명</th>
+            <th scope="col">단계</th>
+            <th scope="col">재료</th>
+            <th scope="col">함량</th>
+            <th scope="col">단위</th>
+            <th scope="col">목측량</th>
+            {% if user.is_superuser %}
+            <th scope="col" width="70">수정</th>
+            <th scope="col" width="70">삭제</th>
+            {% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% if ingredient_list %}
+        {% for ingredient in ingredient_list %}
+            <tr>
+                <td>{{ingredient.id}}</td>
+                <td>{{ingredient.rcp.id}}</td>
+                <td><a href={% url 'RecipeApp:rcp_detail' ingredient.rcp.id %}>{{ingredient.rcp.name}}</a></td>
+                <td>{{ingredient.type}}</td>
+                <td>{{ingredient.name}}</td>
+                <td>{{ingredient.qnt}}</td>
+                <td>{{ingredient.unit}}</td>
+                <td>{{ingredient.msmt}}</td>
+                {% if user.is_superuser %}
+                <td><a href={% url 'RecipeApp:rcp_update' ingredient.rcp.id %} class="btn btn-success btn-sm">수정</a></td>
+                <td><a href={% url 'RecipeApp:ingrdnt_delete' rcp_item.rcp_num rcp_item.rcp_pk %} class="btn btn-danger btn-sm">삭제</a></td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        {% else %}
+            {% if q %}
+                <tr class="text-center">
+                    {% if user.is_superuser %}
+                        <td colspan="10">
+                            일치하는 검색 결과가 없습니다.
+                    {% else %}
+                        <td colspan="8">
+                            일치하는 검색 결과가 없습니다.
+                    {% endif %}
+                    </td>
+                </tr>
+            {% endif %}
+        {% endif %}
+    </tbody>
+</table>
 <p></p>
 {% if messages %}
 <div class="messages">
@@ -20,58 +69,19 @@
 </div>
 {% endif %}
 <p></p>
-<table class="table mx-auto w-50">
-    <thead>
-        <tr>
-            <th class="w-25 text-center">레시피 번호</th>
-            <th class="w-50 text-center" scope="col">레시피명</th>
-            {% if user.is_superuser %}
-            <th scope="col">수정</th>
-            <th scope="col">삭제</th>
-            {% endif %}
-        </tr>
-    </thead>
-    <tbody>
-        {% if rcp_nm_list %}
-            {% for rcp_nm_item in rcp_nm_list %}
-                <tr>
-                    <td class="text-center">{{rcp_nm_item.rcp_num}}</td>
-                    <td><a href="./detail/{{rcp_nm_item.rcp_num}}">{{rcp_nm_item.rcp_nm}}</a></td>
-                    {% if user.is_superuser %}
-                    <td><a href="./update/{{rcp_nm_item.rcp_num}}" class="btn btn-success btn-sm">수정</a></td>
-                    <td><a href="./rcp_delete/{{rcp_nm_item.rcp_num}}" class="btn btn-danger btn-sm">삭제</a></td>
-                    {% endif %}
-                </tr>
-            {% endfor %}
-        {% else %}
-        <!-- 추가된 코드 -->
-            {% if q %}
-                <tr class="text-center">
-                    {% if user.is_superuser %}
-                        <td colspan="4">
-                            일치하는 검색 결과가 없습니다.
-                    {% else %}
-                        <td colspan="2">
-                            일치하는 검색 결과가 없습니다.
-                    {% endif %}
-                    </td>
-                </tr>
-            {% endif %}
-        {% endif %}
-    </tbody>
-</table>
-<p></p>
 <div class="input-group justify-content-center">
     <form action="" method="GET">
+        {% csrf_token %}
         <div class="col">
             <div class="form-row">
                 <div class="form-row">
                     <div class="col">
                         <select style="width: 6em;" class="custom-select custom-select-md" name="type">
                             <option value="all">전체</option>
-                            <option value="rcp_id">레시피 번호</option>
-                            <option value="rcp_name">레시피명</option>
-                            <option value="ingredient_name">재료</option>
+                            <option value="rcp_pk">#</option>
+                            <option value="rcp_num">레시피 번호</option>
+                            <option value="rcp_nm">레시피명</option>
+                            <option value="rcp_ingrdnt_nm">재료</option>
                         </select>
                     </div>
                     <div class="col">
@@ -93,7 +103,6 @@
 </div>
 {% endif %}
 {% endblock %}
-
 
 {% block pagination %}
 {% if user.is_authenticated %}

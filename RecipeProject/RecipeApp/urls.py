@@ -5,14 +5,14 @@ app_name = "RecipeApp"
 
 urlpatterns = [
     path("", views.main, name="mainpage"),
-    path("ingredientlist/", views.IngredientsListView.as_view(), name="ingredient_list"),
-    path("recipenamelist/", views.RecipeListView.as_view(), name="recipe_list"),
-    path("recipenamelist/detail/<int:rcp_num>", views.RcpDetailView.as_view(), name="rcp_detail"),
-    path("recipenamelist/update/<int:rcp_num>", views.rcp_update_view, name="rcp_update"),
-    path("recipenamelist/ingrdnt_create/<int:rcp_num>", views.IngrdntCreateView.as_view(), name="ingrdnt_create"),
-    path("recipenamelist/rcp_create/", views.RcpCreateView.as_view(), name="rcp_create"),
-    path("recipenamelist/ingrdnt_delete/<int:rcp_num>/<int:pk>", views.IngrdntDeleteView.as_view(), name="ingrdnt_delete"),
-    path("recipenamelist/rcp_delete/<int:rcp_num>", views.rcp_delete_view, name="rcp_delete"),
+    path("ingredients", views.IngredientListView.as_view(), name="ingredient_list"),
+    path("recipes", views.RecipeListView.as_view(), name="recipe_list"),
+    path("recipes/<int:id>", views.RecipeDetailView.as_view(), name="recipe_detail"),
+    path("recipes/<int:id>", views.rcp_update_view, name="rcp_update"),
+    path("recipes/<int:id>", views.IngredientCreateView.as_view(), name="ingredient_create"),
+    path("recipes", views.RcpCreateView.as_view(), name="rcp_create"),
+    path("ingredients/<int:id>", views.IngrdntDeleteView.as_view(), name="ingrdnt_delete"),
+    path("recipes/<int:id>", views.rcp_delete_view, name="rcp_delete"),
     
     # swagger
     path("tablelist/", views.RcpTableListAPIView.as_view()),

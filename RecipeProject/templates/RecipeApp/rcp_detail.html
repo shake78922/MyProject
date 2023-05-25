@@ -4,11 +4,11 @@
 {% block content %}
 {% if user.is_authenticated %}
 <div class="btn-group">
-    <a href={% url 'RecipeApp:rcp_nm_list' %} class="btn btn-info">목록으로</a>
+    <a href={% url 'RecipeApp:recipe_list' %} class="btn btn-info">목록으로</a>
 </div>
 <p></p>
 <table class="table mx-auto w-100">
-    <h2>{{ recipe_name.rcp_nm }}</h2>
+    <h2>{{ recipe.name }}</h2>
     <thead>
         <tr>
             <th scope="col">#</th>
@@ -23,18 +23,18 @@
         </tr>
     </thead>
     <tbody>
-        {% for rcp_item in rcp_detail %}
+        {% for ingredient in ingredients %}
             <tr>
-                <td>{{rcp_item.rcp_sub_num }}</td>
-                <td>{{rcp_item.rcp_sub_nm}}</td>
-                <td>{{rcp_item.rcp_ingrdnt_nm}}</td>
-                <td>{{rcp_item.rcp_ingrdnt_qnt}}</td>
-                <td>{{rcp_item.rcp_ingrdnt_unit}}</td>
-                <td>{{rcp_item.rcp_ingrdnt_sub}}</td>
+                <td>{{forloop.counter}}</td>
+                <td>{{ingredient.type}}</td>
+                <td>{{ingredient.name}}</td>
+                <td>{{ingredient.qnt}}</td>
+                <td>{{ingredient.unit}}</td>
+                <td>{{ingredient.msmt}}</td>
                 {% if user.is_superuser %}
                 <td>
                     <div class="btn-group">
-                        <a href={% url 'RecipeApp:ingrdnt_delete' rcp_item.rcp_num rcp_item.rcp_pk %} class="btn btn-danger">삭제</a>
+                        <a href={% url 'RecipeApp:ingrdnt_delete' ingredient.rcp.id ingredient.id %} class="btn btn-danger">삭제</a>
                     </div>
                 </td>
                 {% endif %}
@@ -45,10 +45,10 @@
 <p></p>
 {% if user.is_superuser %}
     <div class="btn-group">
-        <a href={% url 'RecipeApp:rcp_update' rcp_num %} class="btn btn-success">수정</a>
+        <a href={% url 'RecipeApp:rcp_update' ingredient.rcp.id %} class="btn btn-success">수정</a>
     </div> &nbsp;
     <div class="btn-group">
-        <a href={% url 'RecipeApp:ingrdnt_create' rcp_num %} class="btn btn-primary">재료 추가</a>
+        <a href={% url 'RecipeApp:ingrdnt_create' ingredient.rcp.id %} class="btn btn-primary">재료 추가</a>
     </div>
 {% endif %}
 {% else %}

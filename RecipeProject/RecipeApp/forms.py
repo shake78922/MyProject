@@ -1,13 +1,13 @@
 from django import forms
-from .models import RcpTable
+from .models import Recipe, Ingredient
 from django.forms import modelformset_factory
 
-class IngrdntCreateForm(forms.ModelForm):
+class IngredientCreateForm(forms.ModelForm):
     class Meta:
-        model = RcpTable
+        model = Ingredient
         fields = [
-            'rcp_num',
-            'rcp_nm',
+            'id',
+            'name',
             'rcp_sub_num',
             'rcp_sub_nm',
             'rcp_ingrdnt_nm',
