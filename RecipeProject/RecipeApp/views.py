@@ -226,16 +226,16 @@ class IngredientCreateView(CreateView):
     def get_initial(self):
         # (URL 파라미터 값 = 레시피 번호)에 해당하는 레시피의 상세 페이지에서 마지막 순번의 재료 번호 + 1 값을 새로 생성되는 폼의 초기값으로 반환
         rcp_num = self.kwargs['rcp_num']
-        last_rcp_sub_num = RcpTable.objects.filter(rcp_num=rcp_num)
+        last_rcp_sub_num = Ingredient.objects.filter(rcp_num=rcp_num)
         last_rcp_sub_num = last_rcp_sub_num.aggregate(Max('rcp_sub_num'))['rcp_sub_num__max'] + 1
         return {'rcp_sub_num': last_rcp_sub_num}
     
     # context 데이터 호출 메서드
     def get_context_data(self, **kwargs):
         rcp_num = self.kwargs['rcp_num']
-        context = super(IngrdntCreateView, self).get_context_data(**kwargs)
+        context = super(IngredientCreateView, self).get_context_data(**kwargs)
         context['rcp_num'] = rcp_num
-        context['rcp_detail'] = RcpTable.objects.filter(rcp_num=rcp_num).order_by('rcp_sub_num')
+        context['rcp_detail'] = Ingredient.objects.filter(rcp_num=rcp_num).order_by('rcp_sub_num')
         context['recipe_name'] = context['rcp_detail'][0]
         return context
     
@@ -251,7 +251,7 @@ class IngredientCreateView(CreateView):
         if form.is_valid():
             #(URL 파라미터 값 = 레시피 번호) 클릭한 레시피의 마지막 재료
             rcp_num = self.kwargs['rcp_num']
-            last_ingrdnt = RcpTable.objects.all().order_by('rcp_pk').last()
+            last_ingrdnt = Ingredient.objects.all().order_by('rcp_pk').last()
             # 작성된 폼에서 PK와 HiddenInput field에 값을 넣어줌
             form.instance = form.save(commit=False)
             form.instance.rcp_pk = last_ingrdnt.rcp_pk + 1
